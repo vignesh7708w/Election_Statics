@@ -1,0 +1,132 @@
+package com.example.demo;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Scanner;
+
+import org.json.simple.JSONObject;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class ElectionStatistics {
+	
+    private static HashMap<String,Integer> candidate_db=new HashMap<>();
+    
+    int max=0;
+    String leadingCandidate="";
+    
+	public static void main(String[] args) {
+		
+        
+		Scanner scanner = new Scanner(System.in);
+		ElectionStatistics obj=new ElectionStatistics();
+		while(true)
+		{   
+			//Getting the instruction from the user
+			System.out.print("Enter the instruction:");
+			String st = scanner.nextLine();
+			
+			/*if your enter the instruction entercandidate ramesh
+			 * this array will split the space between them then in the
+			 * arr[0] it stores entercandidate and arr[1] it stores ramesh
+			 */
+			
+			String[] array = st.split(" ");
+			
+			switch(array[0])
+			{
+			case "entercandidate":
+				obj.addCandidate(array[1]);
+				break;
+				
+			case "castvote":
+				obj.castVote(array[1]);
+				break;
+				
+			case "countvote":
+				//stem.out.println(array[1]+" vote is "+obj.countVote(array[1]));
+				System.out.println("candidate "+array[1]+" total vote is "+obj.countVote(array[1]));
+			    break;
+			    
+			case "listvote":
+				System.out.println(obj.listVote());
+				break;
+				
+			case "getwinner":
+				System.out.println(obj.getWinner()+" is the winner");
+				break;
+				
+			case "exit":
+				System.out.println("Vote time is  closed");
+				return;
+				
+			default:
+				break;
+			
+			}
+		}
+	
+	}
+	
+	//adding the candidates into the map
+	public void addCandidate(String name)
+	{
+		candidate_db.put(name, 0);
+	}
+	
+	//This will allow peoples to vote 
+	public int castVote(String name)
+	{
+		if(isValidCandidate(name))
+		{
+		int voteCount=candidate_db.get(name);	
+	    candidate_db.put(name,++voteCount);
+	    if(voteCount>max)
+	    {
+	    	max=voteCount;
+	    	leadingCandidate=name;
+	    }
+	    return voteCount;
+	    
+		}
+	  return -1;
+	}
+	
+	//This will check whether the candidate is valid candidate or not
+	private boolean isValidCandidate(String name)
+	{
+		return candidate_db.containsKey(name);
+	}
+	
+	//This will return the vote count of the particular candidate
+	public int countVote(String name)
+	{
+		if(isValidCandidate(name))
+		{
+			return candidate_db.get(name);
+		}
+		return -1;
+	}
+	
+	//This function will return winner of the election
+	public String getWinner()
+	{
+		return leadingCandidate;
+	}
+	
+	//This will show the full details
+   public String listVote()
+   {
+	 String json="";
+	try 
+	{
+		json = new ObjectMapper().writeValueAsString(candidate_db);
+	}
+	catch (JsonProcessingException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	 return json;
+   }
+ }
